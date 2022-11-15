@@ -2,6 +2,9 @@
 Testing how to write Gcode files
 
 we're working in mm
+
+
+187 mm per 1000 steps
 """
 #import numpy as np
 test_file = "straight_line_text.gcode"
@@ -32,10 +35,7 @@ def straight_line(filename,point1,point2,draw_height,linked=False):
         yend = point2[1]
 
         if not linked:
-            retract(f,draw_height)
-            mov_ln = f"G0 X{xstart} Y{ystart}\n"
-            f.write(mov_ln)
-            unretract(f,draw_height)
+            retraction_move(f,draw_height,[xstart,ystart])
         
         line = f"G1 X{xend} Y{yend}\n"
         f.write(line)
@@ -68,3 +68,11 @@ def arbitrary_curve(filename,xpoints,ypoints,draw_height,init_linked=False):
         next_point = [xpoints[index+2],ypoints[index+2]]
         straight_line(filename,first_point,next_point,draw_height,True)
 
+def retraction_move(f,draw_height,destination):
+
+    x = destination[0]
+    y = destination[1]
+    retract(f,draw_height)
+    mov_ln = f"G0 X{x} Y{y}\n"
+    f.write(mov_ln)
+    unretract(f,draw_height)
