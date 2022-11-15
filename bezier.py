@@ -26,11 +26,13 @@ def svg_commands_to_gcode(filename,start_point,path_commands,draw_height=0):
         elif command.upper() == "C":
             points,end_point = path_C(start_point,path_command,50)
 
+            #print(points)
+
             xpoints,ypoints = split_lists(points)
             start_point = end_point
 
-            print(xpoints)
-            print(ypoints)
+            #print(xpoints)
+            #print(ypoints)
             #all curves are linked unless the M command is done
             Gcode_tests.arbitrary_curve(filename,xpoints,ypoints,draw_height,init_linked=True)
         elif command.upper() == "L":
@@ -178,7 +180,7 @@ def split_lists(list):
     #split list by odd and even
     xlist = []
     ylist = []
-    for i in range(len(list)//2):
-        xlist.append(list[2*i])
-        ylist.append(list[2*i+1])
+    for i in range(len(list)):
+        xlist.append(list[i][0])
+        ylist.append(list[i][1])
     return xlist,ylist
