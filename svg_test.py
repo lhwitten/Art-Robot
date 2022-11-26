@@ -63,7 +63,7 @@ def parse_svg(filename):
     command_list =[]
     with open(filename,"r") as f:
 
-        #
+        
         viewBox = [0,0,0,0]
         #for row in reader:
 
@@ -71,6 +71,10 @@ def parse_svg(filename):
         file_commands = f.read().split("<")
         #replace all new lines with spaces
         file_commands = [command.replace("\n"," ") for command in file_commands]
+        #delete commas, kittykat.svg has commas instead of spaces in some places
+        file_commands = [command.replace(","," ") for command in file_commands]
+        
+        #clean up the created junk
         file_commands.remove('')
         file_command = [command[1:-1] for command in file_commands]
 
@@ -92,6 +96,8 @@ def parse_svg(filename):
 
             if start_word == "path":
                 #print("parsing")
+
+                #print(f"command is {command}")
                 parse_pathline(command,command_list)
     return command_list
 
@@ -111,9 +117,10 @@ def parse_pathline(line,command_list):
     temp_start = line.find(" d=") +4
     temp_end = line.find("\"",temp_start)
 
+    
     path_data = line[temp_start:temp_end]
 
-    #print(path_data)
+    #print(f"path data is {path_data}")
 
     #from here we should be able to get everything we need
 
@@ -133,12 +140,12 @@ def parse_pathline(line,command_list):
 
     #we're parsing until we're not
     run = True
-    #i =0
+    i =0
     while run:
         #this is because im in a while loop and im scared... removing, should work now
-        #i+=1
-        #if i > 95:
-        #    break
+        i+=1
+        if i > 250:
+            break
         #we care about the start letter because it defines what kind of command we're doing
         temp_start,start_letter = find_first_occurence_of_multiple(path_data,stop_codes)
 
@@ -146,18 +153,24 @@ def parse_pathline(line,command_list):
 
         #print(f"next search path is {path_data[temp_start+1:-1]}")
 
-        temp_end, end_letter = find_first_occurence_of_multiple(path_data[temp_start+1:-1],stop_codes)
+        temp_end, end_letter = find_first_occurence_of_multiple(path_data[temp_start+1:len(path_data)],stop_codes)
         
         #print(f"end letter is {end_letter}")
 
         #print(f"end index is {temp_end}")
+
         #stop parsing if we're at the end
+
+        #deals with a bug for parsing the last command of the list
         if temp_end == -1:
             run = False
+            single_letter_command = path_data[temp_start:len(path_data)]
+        else:
+            #this will almost always run
+            single_letter_command = path_data[temp_start:temp_end]
 
-    
-        single_letter_command = path_data[temp_start:temp_end]
 
+        #print(f"single letter command is {single_letter_command}")
         #take a single line of of 1 letter commands and parse it, add it to the main list
         parse_single_command(command_list,single_letter_command,start_letter,stopcode_dict)
 
@@ -165,7 +178,7 @@ def parse_pathline(line,command_list):
 
         #print(single_letter_command)
 
-        path_data = path_data[temp_end:-1]
+        path_data = path_data[temp_end+1:len(path_data)]
         #print(f"new path is {path_data}")
 
     #return command_list

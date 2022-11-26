@@ -82,7 +82,8 @@ def path_C(start_point,path_command,numpoints =15):
     #get just the coordinates, not the letter
     coordinates = path_command[1:7]
 
-    coordinates = [int(i) for i in coordinates]
+    #used to be int()
+    coordinates = [float(i) for i in coordinates]
 
     if path_command[0] == 'c':
 
@@ -101,8 +102,8 @@ def path_C(start_point,path_command,numpoints =15):
 
         
         #print(coordinates)
-        xcoord = (1-t)**3 *int(start_point[0]) + 3* (1-t)**2 *t*coordinates[0] + 3* (1-t) *(t**2)*coordinates[2] + (t**3)*coordinates[4]
-        ycoord = (1-t)**3 *int(start_point[1]) + 3* (1-t)**2 *t*coordinates[1] + 3* (1-t) *(t**2)*coordinates[3] + (t**3)*coordinates[5]
+        xcoord = (1-t)**3 *float(start_point[0]) + 3* (1-t)**2 *t*coordinates[0] + 3* (1-t) *(t**2)*coordinates[2] + (t**3)*coordinates[4]
+        ycoord = (1-t)**3 *float(start_point[1]) + 3* (1-t)**2 *t*coordinates[1] + 3* (1-t) *(t**2)*coordinates[3] + (t**3)*coordinates[5]
         point_list.append([xcoord,ycoord])
 
     end_point = point_list[numpoints-1]
@@ -122,7 +123,7 @@ def path_L(start_point,path_command,numpoints =15):
     #get just the coordinates, not the letter
     coordinates = path_command[1:3]
 
-    coordinates = [int(i) for i in coordinates]
+    coordinates = [float(i) for i in coordinates]
 
     if path_command[0] == 'l':
         coordinates = rel_to_abs(start_point,coordinates)
@@ -133,8 +134,9 @@ def path_L(start_point,path_command,numpoints =15):
 
     #create the points
     for t in t_list:
-        xcoord = (1-t) *int(start_point[0]) + t*coordinates[0]
-        ycoord = (1-t) *int(start_point[1]) + t*coordinates[1]
+        #used to be int()
+        xcoord = (1-t) *float(start_point[0]) + t*coordinates[0]
+        ycoord = (1-t) *float(start_point[1]) + t*coordinates[1]
         point_list.append([xcoord,ycoord])
 
     end_point = point_list[numpoints-1]
@@ -145,7 +147,8 @@ def path_H(start_point,path_command,numpoints =15):
     end_point = path_command[1]
     if path_command[0] == 'h':
         #make it absolute
-        end_point = int(path_command[1]) + int(start_point[0]) #0 bc horizontal line
+        #used to be int()
+        end_point = float(path_command[1]) + float(start_point[0]) #0 bc horizontal line
     
     new_path_command = ['L',str(end_point),str(start_point[1])]
     return path_L(start_point,new_path_command,numpoints)
@@ -155,7 +158,7 @@ def path_V(start_point,path_command,numpoints =15):
     end_point = path_command[1]
     if path_command[0] == 'v':
         #make it absolute
-        end_point = int(path_command[1]) + int(start_point[1]) #1 bc vert line
+        end_point = float(path_command[1]) + float(start_point[1]) #1 bc vert line
 
     new_path_command = ['L',str(start_point[0]),str(end_point)]
     return path_L(start_point,new_path_command,numpoints)
@@ -170,7 +173,8 @@ def rel_to_abs(start_point,point_list):
     for i in range(len(point_list)):
         addend = start_point[i%2] #if 0 x coord, if 1 ycoord
 
-        new_coords.append(int(addend) + int(point_list[i]))
+        #used to be int()
+        new_coords.append(float(addend) + float(point_list[i]))
 
     return new_coords
 
