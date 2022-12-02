@@ -73,9 +73,11 @@ def parse_svg(filename):
         file_commands = [command.replace("\n"," ") for command in file_commands]
         #delete commas, kittykat.svg has commas instead of spaces in some places
         file_commands = [command.replace(","," ") for command in file_commands]
-        
+
+
         #clean up the created junk
         file_commands.remove('')
+        #not used?
         file_command = [command[1:-1] for command in file_commands]
 
         #we now have a list of commands
@@ -94,12 +96,34 @@ def parse_svg(filename):
 
             #only parsing paths right now
 
+            #we need to find the viewbox
+            if start_word == "svg":
+                
+                temp_start = command.find("height=") +8
+                temp_end = command.find("\"",temp_start)
+
+                #print(temp_start)
+                #print(temp_end)
+
+                #print(command)
+                viewBox[3] = int(command[temp_start:temp_end])
+
+                temp_start = command.find("width=") +7
+                temp_end = command.find("\"",temp_start)
+
+                viewBox[2] = int(command[temp_start:temp_end])
+                
+                #print(viewBox)
+
+                
+                #height_start = command.find("height")
+
             if start_word == "path":
                 #print("parsing")
 
                 #print(f"command is {command}")
                 parse_pathline(command,command_list)
-    return command_list
+    return command_list,viewBox
 
 
 
@@ -239,3 +263,39 @@ def find_first_occurence_of_multiple(string,list_strings):
                 best_index = temp_index
     
     return [best_index,best_letter]
+
+
+#unused redundant partial function
+
+def find_scale(viewBox,bed_dimensions,max_scale=-1,stretch_scale =False):
+
+    """
+    viewBox:
+        a list with 2 integers: x and y image size maximum in terms of steps
+    bed_dimensions:
+        a list with 2 integers: x and y bed size maximum in terms of steps
+    """
+    #assume viewBox[0,1] are 0
+    xscale = viewBox[2]/bed_dimensions[0]
+    yscale = viewBox[3]/bed_dimensions[1]
+    
+    #stop the image from getting stretched out
+    if not stretch_scale:
+
+        if xscale <= yscale:
+            yscale = xscale
+        else:
+            xscale = yscale
+    
+    #prevent the image from getting scaled too much
+    if max_scale != -1:
+
+        if xscale > max_scale:
+            xscale = max_scale
+        if yscale > max_scale:
+            yscale = max_scale
+    
+    #return scaling factors 
+
+    return [xscale,yscale]
+
