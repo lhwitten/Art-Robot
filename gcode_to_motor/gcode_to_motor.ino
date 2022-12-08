@@ -20,7 +20,7 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_StepperMotor *xMotor = AFMS.getStepper(200, 2);
 Adafruit_StepperMotor *yMotor = AFMS.getStepper(200, 1);
 
-// Create object for servo that lifts and lowers pen(s)
+// Create servo object to lift and lower pens
 Servo servo;
 
 // limit switches
@@ -37,8 +37,7 @@ char buffer[MAX_MES]; // where we store message until we get a ';'
 int sofar; // how much is in the buffer
 float px, py;      // location
 char mode_abs=1;   // absolute mode MIGHT WANT TO GET RID OF THIS
-float penState = 1; // whether pen is lifted, if lifted 1 & if lowered 0
-//int penPos = 0;  // how much the pen servo is rotated
+float penState = 0; // pen position: 0 = both up, 1 = left pen up, 2 = right pen up
 
 void setup() {
   // put your setup code here, to run once:
@@ -49,12 +48,13 @@ void setup() {
   AFMS.begin(); // motor setup
   xMotor -> setSpeed(10);
   yMotor -> setSpeed(10);
-  servo.attach(9); // where it's attached
+
+  servo.attach(9); // where servo is attached
+
   xLimit.setDebounceTime(50); // set debounce time to 50 milliseconds
   yLimit.setDebounceTime(50); // set debounce time to 50 milliseconds
-  xLimit.loop(); // MUST call the loop() function first
-  yLimit.loop(); // MUST call the loop() function first
-  setHome();
+
+  setHome(); // make sure pens are at (0,0)
 }
 
 /**
@@ -92,19 +92,32 @@ void setHome() {
   int xstate = xLimit.getState();
   int ystate = yLimit.getState();
 
-    
+  // setting x home
   while (true) {
-   xstate = xLimit.getState();
-   if(xstate == LOW)
+    xLimit.loop();
+    Serial.println("The X limit switch: UNTOUCHED");
+    if (xLimit.isPressed()) {
       break;
+    }
+    xstate = xLimit.getState();
     xMotor -> step(1,BACKWARD,SINGLE);
   }
+  Serial.println("The X limit switch: TOUCHED");
+
+  // setting y home
   while (true) {
-    ystate = yLimit.getState();
-    if(ystate == LOW)
+    yLimit.loop();
+    Serial.println("The Y limit switch: UNTOUCHED");
+    if (yLimit.isPressed()) {
       break;
+    }
+    ystate = yLimit.getState();
     yMotor -> step(1,BACKWARD,SINGLE);
   }
+  Serial.println("The Y limit switch: TOUCHED");
+
+  // changing coordinates to (0,0)
+  position(0,0);
 }
 
  
@@ -217,13 +230,17 @@ void line(float newx,float newy, float penCmd) {
 
 // lift or lower pen as needed
 if (penState != penCmd) {
-  if (penState == 1 && penCmd == 0) {
-    servo.write(0);
+  if (penCmd == 0) {
+    servo.write(90);
     penState = 0;
   }
-  if (penState == 0 && penCmd == 1) {
-    servo.write(1);
+  if (penCmd == 1) {
+    servo.write(100);
     penState = 1;
+  }
+  if (penCmd == 2) {
+    servo.write(80);
+    penState = 2;
   }
 }
 
@@ -262,6 +279,7 @@ if (penState != penCmd) {
 //------------------------------------------------------------------------------
 void loop() {
   // put your main code here, to run repeatedly:
+
   
   // listen for commands
   if( Serial.available() ) { // if something is available
