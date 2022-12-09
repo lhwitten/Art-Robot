@@ -276,8 +276,8 @@ def find_scale(viewBox,bed_dimensions,max_scale=-1,stretch_scale =False):
         a list with 2 integers: x and y bed size maximum in terms of steps
     """
     #assume viewBox[0,1] are 0
-    xscale = viewBox[2]/bed_dimensions[0]
-    yscale = viewBox[3]/bed_dimensions[1]
+    xscale = bed_dimensions[0]/viewBox[2]
+    yscale = bed_dimensions[1]/viewBox[3]
     
     #stop the image from getting stretched out
     if not stretch_scale:
