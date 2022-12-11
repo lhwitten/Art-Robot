@@ -43,6 +43,9 @@ void setup() {
   xLimit.setDebounceTime(50); // set debounce time to 50 milliseconds
   yLimit.setDebounceTime(50); // set debounce time to 50 milliseconds
 
+  message = "";
+  // px = 0;
+  // py = 0;
   setHome(); // make sure pens are at (0,0)
 }
 
@@ -64,6 +67,10 @@ void setHome() {
   // setting x home
   while (true) {
     xLimit.loop();
+    if (xstate == LOW){
+      Serial.println("x limit touched");
+      break;
+    }
     Serial.println("The X limit switch: UNTOUCHED");
     if (xLimit.isPressed()) {
       break;
@@ -76,6 +83,9 @@ void setHome() {
   // setting y home
   while (true) {
     yLimit.loop();
+    if (ystate== LOW) {
+      break;
+    }
     Serial.println("The Y limit switch: UNTOUCHED");
     if (yLimit.isPressed()) {
       break;
@@ -86,7 +96,8 @@ void setHome() {
   Serial.println("The Y limit switch: TOUCHED");
 
   // changing coordinates to (0,0)
-  position(0,0);
+  px = 0;
+  py = 0;
 }
 
 float parseNumber(char code,float val) {
@@ -97,18 +108,13 @@ float parseNumber(char code,float val) {
   // return: the value found.  If nothing found, val is returned.
 
   int idx = message.indexOf(code);
+  Serial.println(code);
   if (idx != -1) {
     int space = message.indexOf(" ", idx);
-    return (message.substring(idx, space)).toFloat();
+    return (message.substring(idx+1, space)).toFloat();
   }
 
   return val;  // end reached, nothing found, return default val
-}
-
-void position(float npx,float npy) {
-  // set new position
-  px=npx;
-  py=npy;
 }
 
 void where() {
@@ -178,7 +184,6 @@ if (penState != penCmd) {
         over-=dx;
         yMotor -> step(1,diry,SINGLE);
       }
-      // test limits and/or e-stop here
     }
   } else {
     for(long i=0;i < dy;++i) { 
@@ -188,25 +193,28 @@ if (penState != penCmd) {
         over-=dy;
         xMotor -> step(1,dirx,SINGLE); 
       }
-      // test limits and/or e-stop here } }
     }
-    position(newx, newy);
-    return;
   }
+  px = newx;
+  py = newy;
+  return;
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 
+
   // listen for commands
-  if( Serial.available() ) { // if something is available
+  if( Serial.available() > 0 ) { // if something is available
+    Serial.println("message received!!");
     char c = Serial.read(); // read it
 
     // put the character in a string to store
     message += c;
 
     // if we got a return character (;) the message is done
-    if ((c == ";") && (message.length() > 0)) {
+    if ((c == ';') && (message.length() > 0)) {      
+      Serial.println(message);
       processCommand(); // do what the command told you to
       message = "";
     }
