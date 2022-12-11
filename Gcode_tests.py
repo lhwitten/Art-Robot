@@ -73,6 +73,6 @@ def retraction_move(f,draw_height,destination):
     x = destination[0]
     y = destination[1]
     retract(f,draw_height)
-    mov_ln = f"G0 X{x} Y{y}\n"
+    mov_ln = f"G0 X{x} Y{y};\n"
     f.write(mov_ln)
     unretract(f,draw_height)
