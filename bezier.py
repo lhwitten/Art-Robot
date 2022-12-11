@@ -21,7 +21,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
             
             #make sure everything is absolute
             #print(path_command[1])
-            destination = [float(path_command[1])*scalers[0],float(path_command[2])*scalers[1]]
+            destination = [float(path_command[1]),float(path_command[2])]
 
 
             if command =='m':
@@ -112,7 +112,7 @@ def path_C(start_point,path_command,scalers,numpoints =15):
         #print(coordinates)
         xcoord = (1-t)**3 *float(start_point[0]) + 3* (1-t)**2 *t*coordinates[0] + 3* (1-t) *(t**2)*coordinates[2] + (t**3)*coordinates[4]
         ycoord = (1-t)**3 *float(start_point[1]) + 3* (1-t)**2 *t*coordinates[1] + 3* (1-t) *(t**2)*coordinates[3] + (t**3)*coordinates[5]
-        point_list.append([xcoord*scalers[0],ycoord*scalers[1]])
+        point_list.append([xcoord,ycoord])
 
     end_point = point_list[numpoints-1]
     return point_list,end_point
@@ -145,7 +145,7 @@ def path_L(start_point,path_command,scalers,numpoints =15):
         #used to be int()
         xcoord = (1-t) *float(start_point[0]) + t*coordinates[0]
         ycoord = (1-t) *float(start_point[1]) + t*coordinates[1]
-        point_list.append([xcoord*scalers[0],ycoord*scalers[1]])
+        point_list.append([xcoord,ycoord])
 
     end_point = point_list[numpoints-1]
     return point_list,end_point
@@ -196,3 +196,29 @@ def split_lists(list):
         xlist.append(list[i][0])
         ylist.append(list[i][1])
     return xlist,ylist
+
+def scale_commands(command_list,scalers):
+
+    #scale all control points by the scalers
+
+    xscale = scalers[0]
+    yscale = scalers[1]
+
+    new_command_list = []
+    for command in command_list:
+
+        if command[0] == 'c' or command[0] == 'C':
+            new_command = [command[0],str(xscale*float(command[1])),str(yscale*float(command[2])),str(xscale*float(command[3])),str(yscale*float(command[4])),str(xscale*float(command[5])),str(yscale*float(command[6]))]
+        elif command[0] == 'm' or command[0] == 'M':
+            new_command = [command[0],str(xscale*float(command[1])),str(yscale*float(command[2]))]
+        elif command[0] == 'l' or command[0] == 'L':
+            new_command = [command[0],str(xscale*float(command[1])),str(yscale*float(command[2]))]
+        elif command[0] == 'h' or command[0] == 'H':
+            new_command = [command[0],str(xscale*float(command[1]))]
+        elif command[0] == 'v' or command[0] == 'V':
+            new_command = [command[0],str(yscale*float(command[1]))]
+
+        
+        new_command_list.append(new_command)
+
+    return new_command_list
