@@ -32,7 +32,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
                 Gcode_tests.retraction_move(f,draw_height,destination)
             
         elif command.upper() == "C":
-            points,end_point = path_C(start_point,path_command,scalers,50)
+            points,end_point = path_C(start_point,path_command,scalers,5)
 
             #print(points)
 
