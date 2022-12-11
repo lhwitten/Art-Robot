@@ -1,8 +1,8 @@
 import serial
 import time
 
-communication_port = '/dev/tty.usbmodem143301'
-arduino = serial.Serial(port=communication_port, baudrate=115200, timeout=.1)
+communication_port = '/dev/tty.usbmodem141201'
+arduino = serial.Serial(port=communication_port, baudrate=57600, timeout=1)
 
 gcode_file = 'straight_line_test.gcode.txt'
 
@@ -17,4 +17,5 @@ def write_read(x):
 
 
 for line in lines:
-    write_read(line)
+    line = list(line)+[";"]
+    write_read("".join(line))
