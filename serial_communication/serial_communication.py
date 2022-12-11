@@ -17,5 +17,5 @@ def write_read(x):
 
 
 for line in lines:
-    line = list(line)+[";"]
-    write_read("".join(line))
+
+    write_read(line)
