@@ -31,7 +31,7 @@ float penState = 0; // pen position: 0 = both up, 1 = left pen up, 2 = right pen
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600); // starts communication
-  help(); // displays helpful information
+  // help(); // displays helpful information
 
   AFMS.begin(); // stepper motor setup
   xMotor -> setSpeed(10); // motor speed
@@ -44,9 +44,9 @@ void setup() {
   yLimit.setDebounceTime(50); // set debounce time to 50 milliseconds
 
   message = "";
-  // px = 0;
-  // py = 0;
-  setHome(); // make sure pens are at (0,0)
+  px = 0;
+  py = 0;
+  // setHome(); // make sure pens are at (0,0)
 }
 
 void help() {
@@ -135,7 +135,7 @@ void processCommand() {
   case 0: // move in a line
   case 1: // move in a line
     line( parseNumber('X',px),
-    parseNumber('Y',py), parseNumber('Z', penState)); // LOOK OVER THIS AGAIN
+    parseNumber('Y',py), parseNumber('Z', penState));
     break;
   default: break;
   }
@@ -164,11 +164,11 @@ if (penState != penCmd) {
     penState = 0;
   }
   if (penCmd == 1) {
-    servo.write(100);
+    servo.write(105);
     penState = 1;
   }
   if (penCmd == 2) {
-    servo.write(80);
+    servo.write(75);
     penState = 2;
   }
 }
@@ -216,6 +216,8 @@ void loop() {
     if ((c == ';') && (message.length() > 0)) {      
       Serial.println(message);
       processCommand(); // do what the command told you to
+      // Serial.print("x,y");
+      // Serial.println(px,py);
       message = "";
     }
   }
