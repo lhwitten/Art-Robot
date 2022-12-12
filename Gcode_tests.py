@@ -37,16 +37,16 @@ def straight_line(filename,point1,point2,draw_height,linked=False):
         if not linked:
             retraction_move(f,draw_height,[xstart,ystart])
         
-        line = f"G1 X{xend} Y{yend}\n"
+        line = f"G1 X{xend} Y{yend};\n"
         f.write(line)
 
 def retract(appendable,draw_height):
-    line = f"G1 Z{draw_height+1}\n"
+    line = f"G1 Z{draw_height+1};\n"
     appendable.write(line)
 
 def unretract(appendable,draw_height):
 
-    line = f"G1 Z{draw_height}\n"
+    line = f"G1 Z{draw_height};\n"
     appendable.write(line)
 
 def arbitrary_curve(filename,xpoints,ypoints,draw_height,init_linked=False):
@@ -73,6 +73,6 @@ def retraction_move(f,draw_height,destination):
     x = destination[0]
     y = destination[1]
     retract(f,draw_height)
-    mov_ln = f"G0 X{x} Y{y}\n"
+    mov_ln = f"G0 X{x} Y{y};\n"
     f.write(mov_ln)
     unretract(f,draw_height)
