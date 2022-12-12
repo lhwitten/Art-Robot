@@ -6,7 +6,7 @@ arduino = serial.Serial(port=communication_port, baudrate=57600, timeout=1)
 
 gcode_file = 'star.gcode'
 
-file = open(gcode_file,'r')
+file = open(r"C:\\Users\\opidruchna\\OneDrive - Olin College of Engineering\Documents\\PIE\Art-Robot\serial_communication",'r')
 lines = file.readlines()
 
 def write_read(x,index):
