@@ -1,21 +1,27 @@
 import serial
 import time
 
-communication_port = '/dev/tty.usbmodem141201'
+communication_port = 'COM5'
 arduino = serial.Serial(port=communication_port, baudrate=57600, timeout=1)
 
-gcode_file = 'straight_line_test.gcode.txt'
+gcode_file = 'star.gcode'
 
 file = open(gcode_file,'r')
 lines = file.readlines()
 
-def write_read(x):
+def write_read(x,index):
     arduino.write(x.encode())
-    time.sleep(0.05)
-    data = arduino.readline()
+    if index != 1 and index != 2:
+        time.sleep(4)
+    else:
+        time.sleep(4)
+    data = 0
+    #data = arduino.readline()
     return data
 
-
+index = 0
 for line in lines:
-
-    write_read(line)
+    index += 1
+    data = write_read(line,index)
+    print(index)
+    print(data)
