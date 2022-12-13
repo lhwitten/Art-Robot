@@ -33,9 +33,9 @@ void setup() {
   Serial.begin(57600); // starts communication
   // help(); // displays helpful information
 
-  AFMS.begin(); // stepper motor setup
-  xMotor -> setSpeed(10); // motor speed
-  yMotor -> setSpeed(10);
+  AFMS.begin(); // stepper motor setup, max 200
+  xMotor -> setSpeed(50); // motor speed
+  yMotor -> setSpeed(50);
 
   servo.attach(servoPin); // where servo is attached
   servo.write(90); // making start position of servo at 90 degrees so it is able to rotate in 2 directions
@@ -44,11 +44,10 @@ void setup() {
   yLimit.setDebounceTime(50); // set debounce time to 50 milliseconds
 
   message = "";
-  Serial.print(F("> ")); // tell python code to send next command
-  
+  Serial.print(F(">")); // tell python code to send next command
+
   px = 0;
   py = 0;
-  // setHome(); // make sure pens are at (0,0)
 }
 
 void help() {
@@ -70,17 +69,17 @@ void setHome() {
   while (true) {
     xLimit.loop();
     if (xstate == LOW){
-      Serial.println("x limit touched");
+      // Serial.println("x limit touched");
       break;
     }
-    Serial.println("The X limit switch: UNTOUCHED");
+    // Serial.println("The X limit switch: UNTOUCHED");
     if (xLimit.isPressed()) {
       break;
     }
     xstate = xLimit.getState();
     xMotor -> step(1,BACKWARD,SINGLE);
   }
-  Serial.println("The X limit switch: TOUCHED");
+  // Serial.println("The X limit switch: TOUCHED");
 
   // setting y home
   while (true) {
@@ -88,14 +87,14 @@ void setHome() {
     if (ystate== LOW) {
       break;
     }
-    Serial.println("The Y limit switch: UNTOUCHED");
+    // Serial.println("The Y limit switch: UNTOUCHED");
     if (yLimit.isPressed()) {
       break;
     }
     ystate = yLimit.getState();
     yMotor -> step(1,BACKWARD,SINGLE);
   }
-  Serial.println("The Y limit switch: TOUCHED");
+  // Serial.println("The Y limit switch: TOUCHED");
 
   // changing coordinates to (0,0)
   px = 0;
@@ -110,7 +109,7 @@ float parseMessage(char code,float val) {
   // return: the value found.  If nothing found, val is returned.
 
   int idx = message.indexOf(code);
-  Serial.println(code);
+  // Serial.println(code);
   if (idx != -1) {
     int space = message.indexOf(" ", idx);
     return (message.substring(idx+1, space)).toFloat();
@@ -139,6 +138,8 @@ void processCommand() {
     line( parseMessage('X',px),
     parseMessage('Y',py), parseMessage('Z', penState));
     break;
+  case 3:
+    setHome(); // make sure pens are at (0,0)
   default: break;
   }
 
@@ -208,7 +209,7 @@ void loop() {
 
   // listen for commands
   if( Serial.available() > 0 ) { // if something is available
-    Serial.println("message received!!");
+    // Serial.println("message received!!");
     char c = Serial.read(); // read it
 
     // put the character in a string to store
@@ -218,10 +219,8 @@ void loop() {
     if ((c == ';') && (message.length() > 0)) {      
       Serial.println(message);
       processCommand(); // do what the command told you to
-      // Serial.print("x,y");
-      // Serial.println(px,py);
       message = "";
-      Serial.print(F("> ")); // tell python code to send next command
+      Serial.print(F(">")); // tell python code to send next command
     }
   }
 }
