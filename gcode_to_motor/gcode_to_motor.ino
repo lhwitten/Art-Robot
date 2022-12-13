@@ -44,6 +44,8 @@ void setup() {
   yLimit.setDebounceTime(50); // set debounce time to 50 milliseconds
 
   message = "";
+  Serial.print(F("> ")); // tell python code to send next command
+  
   px = 0;
   py = 0;
   // setHome(); // make sure pens are at (0,0)
