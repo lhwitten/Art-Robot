@@ -18,7 +18,6 @@ Adafruit_StepperMotor *yMotor = AFMS.getStepper(200, 1);
 Servo servo;
 // Declare the Servo pin 
 int servoPin = 9; 
-bool done = true;
 
 // Create limit switch button objects
 ezButton xLimit(2);  // create ezButton object that attach to pin 2
@@ -34,9 +33,9 @@ void setup() {
   Serial.begin(57600); // starts communication
   // help(); // displays helpful information
 
-  AFMS.begin(); // stepper motor setup
-  xMotor -> setSpeed(10); // motor speed
-  yMotor -> setSpeed(10);
+  AFMS.begin(); // stepper motor setup, max 200
+  xMotor -> setSpeed(100); // motor speed
+  yMotor -> setSpeed(100);
 
   servo.attach(servoPin); // where servo is attached
   servo.write(90); // making start position of servo at 90 degrees so it is able to rotate in 2 directions
@@ -45,9 +44,10 @@ void setup() {
   yLimit.setDebounceTime(50); // set debounce time to 50 milliseconds
 
   message = "";
+  Serial.print(F(">")); // tell python code to send next command
+
   px = 0;
   py = 0;
-  // setHome(); // make sure pens are at (0,0)
 }
 
 void help() {
@@ -68,40 +68,43 @@ void setHome() {
   // setting x home
   while (true) {
     xLimit.loop();
-    if (xstate == LOW){
-      Serial.println("x limit touched");
-      break;
-    }
-    Serial.println("The X limit switch: UNTOUCHED");
+    // if (xstate == LOW){
+    //   // Serial.println("x limit touched");
+    //   break;
+    // }
+    // Serial.println("The X limit switch: UNTOUCHED");
     if (xLimit.isPressed()) {
+      Serial.println("xLimit pressed");      
       break;
     }
     xstate = xLimit.getState();
     xMotor -> step(1,BACKWARD,SINGLE);
   }
-  Serial.println("The X limit switch: TOUCHED");
+  // Serial.println("The X limit switch: TOUCHED");
 
   // setting y home
   while (true) {
     yLimit.loop();
-    if (ystate== LOW) {
-      break;
-    }
-    Serial.println("The Y limit switch: UNTOUCHED");
+    // if (ystate== LOW) {
+    //   break;
+    // }
+    // Serial.println("The Y limit switch: UNTOUCHED");
     if (yLimit.isPressed()) {
+      Serial.println("yLimit pressed");
+
       break;
     }
     ystate = yLimit.getState();
     yMotor -> step(1,BACKWARD,SINGLE);
   }
-  Serial.println("The Y limit switch: TOUCHED");
-
+  // Serial.println("The Y limit switch: TOUCHED");
+  Serial.println("I'm home");
   // changing coordinates to (0,0)
   px = 0;
   py = 0;
 }
 
-float parseNumber(char code,float val) {
+float parseMessage(char code,float val) {
   // Look for character /code/ in the message and read the float that immediately follows it.
   // arguments:
   //  code - character to look for
@@ -109,7 +112,7 @@ float parseNumber(char code,float val) {
   // return: the value found.  If nothing found, val is returned.
 
   int idx = message.indexOf(code);
-  Serial.println(code);
+  // Serial.println(code);
   if (idx != -1) {
     int space = message.indexOf(" ", idx);
     return (message.substring(idx+1, space)).toFloat();
@@ -131,18 +134,20 @@ void processCommand() {
   // Read the message and find any recognized commands
 
   // look for commands that start with 'G'
-  int cmd=parseNumber('G',-1);
+  int cmd=parseMessage('G',-1);
+  Serial.println("case");
+  Serial.println(cmd);
   switch(cmd) {
   case 0: // move in a line
   case 1: // move in a line
-    line( parseNumber('X',px),
-    parseNumber('Y',py), parseNumber('Z', penState));
+    line( parseMessage('X',px),
+    parseMessage('Y',py), parseMessage('Z', penState));
     break;
+  case 3:
+    Serial.println("going home");
+    setHome(); // make sure pens are at (0,0)
   default: break;
-  
-  
   }
-  done = true;
 
   // if the string has no G commands it will get here and the Arduino will ignore it
 }
@@ -199,7 +204,6 @@ if (penState != penCmd) {
       }
     }
   }
-
   px = newx;
   py = newy;
   return;
@@ -210,9 +214,8 @@ void loop() {
 
 
   // listen for commands
-  if( Serial.available() > 0 && done == true ) { // if something is available and the previous command is done
-    Serial.println("message received!!");
-    done = false; // set done to false, we are reading a new command
+  if( Serial.available() > 0 ) { // if something is available
+    // Serial.println("message received!!");
     char c = Serial.read(); // read it
 
     // put the character in a string to store
@@ -222,9 +225,8 @@ void loop() {
     if ((c == ';') && (message.length() > 0)) {      
       Serial.println(message);
       processCommand(); // do what the command told you to
-      // Serial.print("x,y");
-      // Serial.println(px,py);
       message = "";
+      Serial.print(F(">")); // tell python code to send next command
     }
   }
 }
