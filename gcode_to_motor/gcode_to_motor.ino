@@ -100,7 +100,7 @@ void setHome() {
   py = 0;
 }
 
-float parseNumber(char code,float val) {
+float parseMessage(char code,float val) {
   // Look for character /code/ in the message and read the float that immediately follows it.
   // arguments:
   //  code - character to look for
@@ -130,12 +130,12 @@ void processCommand() {
   // Read the message and find any recognized commands
 
   // look for commands that start with 'G'
-  int cmd=parseNumber('G',-1);
+  int cmd=parseMessage('G',-1);
   switch(cmd) {
   case 0: // move in a line
   case 1: // move in a line
-    line( parseNumber('X',px),
-    parseNumber('Y',py), parseNumber('Z', penState));
+    line( parseMessage('X',px),
+    parseMessage('Y',py), parseMessage('Z', penState));
     break;
   default: break;
   }
@@ -219,6 +219,7 @@ void loop() {
       // Serial.print("x,y");
       // Serial.println(px,py);
       message = "";
+      Serial.print(F("> ")); // tell python code to send next command
     }
   }
 }
