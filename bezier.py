@@ -19,7 +19,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
     for path_command in path_commands:
             
         command = path_command[0]
-        print(command)
+        #print(command)
 
         if command.upper() == "M":
             
@@ -37,7 +37,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
                 Gcode_tests.retraction_move(f,draw_height,destination)
             
         elif command.upper() == "C":
-            points,end_point = path_C(start_point,path_command,scalers,5)
+            points,end_point = path_C(start_point,path_command,scalers,4)
 
             #print(points)
 
@@ -49,7 +49,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
             #all curves are linked unless the M command is done
             Gcode_tests.arbitrary_curve(filename,xpoints,ypoints,draw_height,init_linked=True)
         elif command.upper() == "L":
-            points,end_point = path_L(start_point,path_command,scalers,50)
+            points,end_point = path_L(start_point,path_command,scalers,2)
 
             xpoints,ypoints = split_lists(points)
             start_point = end_point
@@ -60,7 +60,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
 
         elif command.upper() == 'H':
             
-            points,end_point = path_H(start_point,path_command,scalers,50)
+            points,end_point = path_H(start_point,path_command,scalers,2)
 
             xpoints,ypoints = split_lists(points)
             start_point = end_point
@@ -69,7 +69,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
             Gcode_tests.arbitrary_curve(filename,xpoints,ypoints,draw_height,init_linked=True)
         elif command.upper() == 'V':
             
-            points,end_point = path_V(start_point,path_command,scalers,50)
+            points,end_point = path_V(start_point,path_command,scalers,2)
 
             xpoints,ypoints = split_lists(points)
             start_point = end_point
@@ -78,7 +78,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
             Gcode_tests.arbitrary_curve(filename,xpoints,ypoints,draw_height,init_linked=True)
         elif command.upper() == 'Z':
             #close the curve
-            print(f"curve start is {curve_start}")
+            #print(f"curve start is {curve_start}")
             Gcode_tests.arbitrary_curve(filename,[start_point[0],curve_start[0]],[start_point[1],curve_start[1]],draw_height,init_linked=True)
 
             start_point = curve_start
