@@ -34,8 +34,8 @@ void setup() {
   // help(); // displays helpful information
 
   AFMS.begin(); // stepper motor setup, max 200
-  xMotor -> setSpeed(50); // motor speed
-  yMotor -> setSpeed(50);
+  xMotor -> setSpeed(100); // motor speed
+  yMotor -> setSpeed(100);
 
   servo.attach(servoPin); // where servo is attached
   servo.write(90); // making start position of servo at 90 degrees so it is able to rotate in 2 directions
@@ -68,12 +68,13 @@ void setHome() {
   // setting x home
   while (true) {
     xLimit.loop();
-    if (xstate == LOW){
-      // Serial.println("x limit touched");
-      break;
-    }
+    // if (xstate == LOW){
+    //   // Serial.println("x limit touched");
+    //   break;
+    // }
     // Serial.println("The X limit switch: UNTOUCHED");
     if (xLimit.isPressed()) {
+      Serial.println("xLimit pressed");      
       break;
     }
     xstate = xLimit.getState();
@@ -84,18 +85,20 @@ void setHome() {
   // setting y home
   while (true) {
     yLimit.loop();
-    if (ystate== LOW) {
-      break;
-    }
+    // if (ystate== LOW) {
+    //   break;
+    // }
     // Serial.println("The Y limit switch: UNTOUCHED");
     if (yLimit.isPressed()) {
+      Serial.println("yLimit pressed");
+
       break;
     }
     ystate = yLimit.getState();
     yMotor -> step(1,BACKWARD,SINGLE);
   }
   // Serial.println("The Y limit switch: TOUCHED");
-
+  Serial.println("I'm home");
   // changing coordinates to (0,0)
   px = 0;
   py = 0;
@@ -132,6 +135,8 @@ void processCommand() {
 
   // look for commands that start with 'G'
   int cmd=parseMessage('G',-1);
+  Serial.println("case");
+  Serial.println(cmd);
   switch(cmd) {
   case 0: // move in a line
   case 1: // move in a line
@@ -139,6 +144,7 @@ void processCommand() {
     parseMessage('Y',py), parseMessage('Z', penState));
     break;
   case 3:
+    Serial.println("going home");
     setHome(); // make sure pens are at (0,0)
   default: break;
   }
