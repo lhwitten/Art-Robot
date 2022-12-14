@@ -99,6 +99,8 @@ def parse_svg(filename):
             #we need to find the viewbox
             if start_word == "svg":
                 
+                if "height=" not in command:
+                    continue 
                 temp_start = command.find("height=") +8
                 temp_end = command.find("\"",temp_start)
 
@@ -113,7 +115,7 @@ def parse_svg(filename):
 
                 viewBox[2] = command[temp_start:temp_end]
                 
-                #print(viewBox)
+                print(viewBox)
 
                 
                 #height_start = command.find("height")

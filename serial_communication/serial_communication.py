@@ -1,7 +1,7 @@
 import serial
 import time
 
-communication_port = 'COM8'
+communication_port = 'COM5'
 arduino = serial.Serial(port=communication_port, baudrate=57600, timeout=1)
 
 gcode_file = 'star.gcode'
