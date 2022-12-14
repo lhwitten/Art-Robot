@@ -106,17 +106,25 @@ def parse_svg(filename):
                 #print(temp_end)
 
                 #print(command)
-                viewBox[3] = int(command[temp_start:temp_end])
+                viewBox[3] = command[temp_start:temp_end]
 
                 temp_start = command.find("width=") +7
                 temp_end = command.find("\"",temp_start)
 
-                viewBox[2] = int(command[temp_start:temp_end])
+                viewBox[2] = command[temp_start:temp_end]
                 
                 #print(viewBox)
 
                 
                 #height_start = command.find("height")
+
+                if "px" in viewBox[2]:
+                    viewBox[2] = viewBox[2][0:-2] 
+                viewBox[2] = float(viewBox[2])
+                if "px" in viewBox[3]:
+                    viewBox[3] = viewBox[3][0:-2] 
+                viewBox[3] = float(viewBox[3])
+
 
             if start_word == "path":
                 #print("parsing")
@@ -167,9 +175,11 @@ def parse_pathline(line,command_list):
     i =0
     while run:
         #this is because im in a while loop and im scared... removing, should work now
+        '''
         i+=1
         if i > 250:
             break
+        '''
         #we care about the start letter because it defines what kind of command we're doing
         temp_start,start_letter = find_first_occurence_of_multiple(path_data,stop_codes)
 
@@ -177,6 +187,8 @@ def parse_pathline(line,command_list):
 
         #print(f"next search path is {path_data[temp_start+1:-1]}")
 
+        #print("searched string is")
+        #print(path_data[temp_start+1:len(path_data)])
         temp_end, end_letter = find_first_occurence_of_multiple(path_data[temp_start+1:len(path_data)],stop_codes)
         
         #print(f"end letter is {end_letter}")
@@ -191,14 +203,19 @@ def parse_pathline(line,command_list):
             single_letter_command = path_data[temp_start:len(path_data)]
         else:
             #this will almost always run
-            single_letter_command = path_data[temp_start:temp_end]
+            single_letter_command = path_data[temp_start:temp_end+1]
 
+        #print(single_letter_command)
+
+        #if '' in single_letter_command:
+        #    single_letter_command.remove('')
 
         #print(f"single letter command is {single_letter_command}")
         #take a single line of of 1 letter commands and parse it, add it to the main list
         parse_single_command(command_list,single_letter_command,start_letter,stopcode_dict)
 
-        #print(f" testing command interpretation should have 2 c commands{command_list}")
+        
+        #print(f"command list: {command_list}")
 
         #print(single_letter_command)
 
@@ -212,10 +229,31 @@ def parse_single_command(list_of_lists,command,letter,letter_dict):
     #could have multiple individual curves in it
     num_arguments = letter_dict[letter]
 
+    if letter == 'Z' or letter =='z':
+        #if the letter is z then there are no arguments
+        list_of_lists.append(["Z"])
+
+        #print("got here")
+        #print(list_of_lists)
+        return
+
+    #print(letter)
     command = command.split(" ")
 
+    if '' in command:
+        command.remove('')
+    #print(type(command))
     #print(command)
-    command.remove(letter)
+
+    #command is a list
+    if letter in command:
+        command.remove(letter)
+    elif letter in command[0]:
+        #if the letter has no space after its number in the command
+        command[0] = command[0][1:len(command[0])]
+
+    #print(command)
+
 
     #print(command)
 

@@ -13,9 +13,13 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
     scalers: list of 2 ints
     """
     points = []
+
+    #need to have a curve start point for the Z,z commands
+    curve_start = [0,0]
     for path_command in path_commands:
             
         command = path_command[0]
+        print(command)
 
         if command.upper() == "M":
             
@@ -28,6 +32,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
                 destination = rel_to_abs(start_point,destination)
             
             start_point = destination
+            curve_start = destination
             with open(filename,"a") as f:
                 Gcode_tests.retraction_move(f,draw_height,destination)
             
@@ -71,6 +76,12 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
 
             #all curves are linked unless the M command is done
             Gcode_tests.arbitrary_curve(filename,xpoints,ypoints,draw_height,init_linked=True)
+        elif command.upper() == 'Z':
+            #close the curve
+            print(f"curve start is {curve_start}")
+            Gcode_tests.arbitrary_curve(filename,[start_point[0],curve_start[0]],[start_point[1],curve_start[1]],draw_height,init_linked=True)
+
+            start_point = curve_start
 
 
 
@@ -217,6 +228,8 @@ def scale_commands(command_list,scalers):
             new_command = [command[0],str(xscale*float(command[1]))]
         elif command[0] == 'v' or command[0] == 'V':
             new_command = [command[0],str(yscale*float(command[1]))]
+        elif command[0] == 'Z' or command[0] == 'Z':
+            new_command = [command[0]]
 
         
         new_command_list.append(new_command)
