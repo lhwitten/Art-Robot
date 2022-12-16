@@ -1,17 +1,18 @@
 """
-Testing how to write Gcode files
-
-we're working in mm
-
-
-187 mm per 1000 steps
+This file contains code for writing Gcode files
 """
 #import numpy as np
-test_file = "straight_line_text.gcode"
+#test_file = "straight_line_text.gcode"
 
 
 def initialize_drawing(filename):
+    """
+    Write the first three lines of a Gcode file (unused)
 
+    Args:
+    filename: 
+        a string representing a file to write to
+    """
     with open(filename,"a") as f:
 
         f.write("G21\n") # set units to millimeters
@@ -21,18 +22,27 @@ def initialize_drawing(filename):
 
 def straight_line(filename,point1,point2,draw_height,linked=False):
     """
-    filename = string that is the filename of 
-    point1 = a list with 2 integers, xy coordinates mm
-    point2 = a list with 2 integers, xy coordinates mm
+    Writes the directions to draw a straight line between two points to a file,
+    also initiates picking and lowering the pen
 
+    filename:
+        a string representing a file to write to 
+    point1: 
+        a list with 2 integers or floats, xy coordinates in steps
+    point2:
+        a list with 2 integers or floats, xy coordinates in steps
+    draw_height:
+        the height at which to draw the image (unused)
+    linked:
+        a boolean representing if the current line follows directly from the last one
     """
     with open(filename,"a") as f:
-        #blahblahblah
-
-        xstart = point1[0]
-        ystart = point1[1]
-        xend = point2[0]
-        yend = point2[1]
+        
+        #round to two decimals
+        xstart = round(point1[0], 2)
+        ystart = round(point1[1], 2)
+        xend = round(point2[0], 2)
+        yend = round(point2[1], 2)
 
         if not linked:
             retraction_move(f,draw_height,[xstart,ystart])
@@ -41,20 +51,50 @@ def straight_line(filename,point1,point2,draw_height,linked=False):
         f.write(line)
 
 def retract(appendable,draw_height):
-    line = f"G1 Z{draw_height+1};\n"
+    """
+    Writes to a file to retract the pen
+
+    Args:
+    appendable:
+        an open file you can write to 
+    draw_height:
+        the height at which to draw the image (unused)
+    
+    """
+    line = f"G1 Z{1};\n"
     appendable.write(line)
 
 def unretract(appendable,draw_height):
+    """
+    Writes to a file to unretract the pen
 
-    line = f"G1 Z{draw_height};\n"
+    Args:
+    appendable:
+        an open file you can write to 
+    draw_height:
+        the height at which to draw the image (unused)
+    
+    """
+    line = f"G1 Z{0};\n"
     appendable.write(line)
 
 def arbitrary_curve(filename,xpoints,ypoints,draw_height,init_linked=False):
     """
-    init_linked:
-        is this curve initially linked to another curve
+    Writes the Gcode commands for any arbitary parametric curve to a file when
+    provided a list of points
 
-    xpoints is a list of floats of equal length to ypoitns
+    Args:
+    filename:
+        a string representing a file to write to 
+    xpoints: 
+        a list containing floats of the x positions of all of the points
+    ypoints:
+        a list containing floats of the y positions of all of the points,
+        equal in length to xpoints
+    draw_height:
+        the height at which to draw the image (unused)
+    linked:
+        a boolean representing if the current line follows directly from the last one
     """
     
 
@@ -69,7 +109,17 @@ def arbitrary_curve(filename,xpoints,ypoints,draw_height,init_linked=False):
         straight_line(filename,first_point,next_point,draw_height,True)
 
 def retraction_move(f,draw_height,destination):
+    """
+    Writes to a file to retract the pen, move to a location, and then unretract
 
+    Args:
+    f:
+        an open file you can write to 
+    draw_height:
+        the height at which to draw the image (unused)
+    destination:
+        a list containing an x and a y coordinate as a float to move to
+    """
     x = destination[0]
     y = destination[1]
     retract(f,draw_height)

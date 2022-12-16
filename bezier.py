@@ -1,16 +1,24 @@
 """
-code for turning bezier curves into a list of points
-
-m c C h M L l 
+Code for turning bezier curves into a list of points and then writing those points
+to Gcode. Also includes code for scaling images
 """
 import numpy as np
 import Gcode_tests
 def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height=0):
     """
-    filename: string
-    start_point = list?
-    path_commands:list of strings
-    scalers: list of 2 ints
+    This function takes a list of svg commands with different key letters and
+    converts those equations into points which it writes to Gcode.
+
+    filename:
+        a string representing the name of the file to write to
+    start_point: 
+        list of two floats representing the x and y coordinates of the next command will start at
+    path_commands:
+        list of strings containing the key letter and command arguments
+    scalers: 
+        list of 2 ints representing how much to scale an image (unused)
+    draw_height:
+        an integer representing the height at which to draw the image
     """
     points = []
 
@@ -19,12 +27,10 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
     for path_command in path_commands:
             
         command = path_command[0]
-        #print(command)
 
         if command.upper() == "M":
             
             #make sure everything is absolute
-            #print(path_command[1])
             destination = [float(path_command[1]),float(path_command[2])]
 
 
@@ -37,7 +43,7 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
                 Gcode_tests.retraction_move(f,draw_height,destination)
             
         elif command.upper() == "C":
-            points,end_point = path_C(start_point,path_command,scalers,10)
+            points,end_point = path_C(start_point,path_command,scalers,6)
 
             #print(points)
 
@@ -87,15 +93,23 @@ def svg_commands_to_gcode(filename,start_point,path_commands,scalers,draw_height
 
 def path_C(start_point,path_command,scalers,numpoints =15):
     """
+    Creates a list of points for the path C or c commands
 
-    creates a list of points for the path C or c commands
-
-
-    start point: 
-        a list of 2 floats (an x and y coordinate)
-
+    Args:
+    start_point: 
+        list of two floats representing the x and y coordinates of the next command will start at
     path_command:
-        a list containing 1 letter and a series of integers determining the bezier curve
+        a list containing 1 letter and a series of integers or floats determining the bezier curve
+    scalers: 
+        list of 2 ints representing how much to scale an image (unused)
+    numpoints:
+        an integer representing the number of points to draw of a curve
+    
+    Returns:
+    point_list:
+        a list of floats in the form [x1,y1,x2,y2,x3,y3,etc...]
+    end_point:
+        a list of floats representing the last x and y point of the drawn curve
     """
     
     #get just the coordinates, not the letter
@@ -130,13 +144,23 @@ def path_C(start_point,path_command,scalers,numpoints =15):
 
 def path_L(start_point,path_command,scalers,numpoints =15):
     """
-    creates a list of points for the path L or l commands
-
-    start point: 
-        a list of 2 floats (an x and y coordinate)
-
+    Creates a list of points for the path L or l commands
+    
+    Args:
+    start_point: 
+        list of two floats representing the x and y coordinates of the next command will start at
     path_command:
-        a list containing 1 letter and a series of integers determining the bezier curve
+        a list containing 1 letter and a series of integers or floats determining the bezier curve
+    scalers: 
+        list of 2 ints representing how much to scale an image (unused)
+    numpoints:
+        an integer representing the number of points to draw of a curve
+    
+    Returns:
+    point_list:
+        a list of floats in the form [x1,y1,x2,y2,x3,y3,etc...]
+    end_point:
+        a list of floats representing the last x and y point of the drawn curve
     """
     
     #get just the coordinates, not the letter
@@ -162,6 +186,25 @@ def path_L(start_point,path_command,scalers,numpoints =15):
     return point_list,end_point
 
 def path_H(start_point,path_command,scalers,numpoints =15):
+    """
+    Creates a list of points for the path H or h commands
+    
+    Args:
+    start_point: 
+        list of two floats representing the x and y coordinates of the next command will start at
+    path_command:
+        a list containing 1 letter and a series of integers or floats determining the bezier curve
+    scalers: 
+        list of 2 ints representing how much to scale an image (unused)
+    numpoints:
+        an integer representing the number of points to draw of a curve
+    
+    Returns:
+    point_list:
+        a list of floats in the form [x1,y1,x2,y2,x3,y3,etc...]
+    end_point:
+        a list of floats representing the last x and y point of the drawn curve
+    """
     #horizontal line
     end_point = path_command[1]
     if path_command[0] == 'h':
@@ -173,6 +216,25 @@ def path_H(start_point,path_command,scalers,numpoints =15):
     return path_L(start_point,new_path_command,scalers,numpoints)
 
 def path_V(start_point,path_command,scalers,numpoints =15):
+    """
+    Creates a list of points for the path V or v commands
+    
+    Args:
+    start_point: 
+        list of two floats representing the x and y coordinates of the next command will start at
+    path_command:
+        a list containing 1 letter and a series of integers or floats determining the bezier curve
+    scalers: 
+        list of 2 ints representing how much to scale an image (unused)
+    numpoints:
+        an integer representing the number of points to draw of a curve
+    
+    Returns:
+    point_list:
+        a list of floats in the form [x1,y1,x2,y2,x3,y3,etc...]
+    end_point:
+        a list of floats representing the last x and y point of the drawn curve
+    """
     #vertical line
     end_point = path_command[1]
     if path_command[0] == 'v':
@@ -185,8 +247,17 @@ def path_V(start_point,path_command,scalers,numpoints =15):
 
 def rel_to_abs(start_point,point_list):
     """
-    converts relative points to absolute points
-    point list is in the form [x1,y1,x2,y2,x3,y3,etc...]
+    Converts a list of points points from relative to absolute coordinates
+    
+    Args:
+    start_point:
+        list of two floats representing the x and y coordinates of the next command will start at
+    point_list: 
+        a list of floats in the form [x1,y1,x2,y2,x3,y3,etc...]
+    
+    Returns:
+    new_coords:
+        a list of floats in absolute coordinates in the form [x1,y1,x2,y2,x3,y3,etc...]
     """
     new_coords = []
     for i in range(len(point_list)):
@@ -198,6 +269,18 @@ def rel_to_abs(start_point,point_list):
     return new_coords
 
 def split_lists(list):
+    """
+    Converts one list of points into two lists of x and y points
+    
+    Args:
+    list: 
+        a list of floats in the form [x1,y1,x2,y2,x3,y3,etc...]
+    Returns:
+    xlist: 
+        a list of floats representing sequential x point components
+    ylist: 
+        a list of floats representing sequential y point components   
+    """
     #list is a list of elements with an even number of elements
 
     #split list by odd and even
@@ -209,7 +292,17 @@ def split_lists(list):
     return xlist,ylist
 
 def scale_commands(command_list,scalers):
+    """
+    This function scales an image by a certain amount
 
+    path_commands:
+        list of strings containing the key letter and command arguments
+    scalers: 
+        list of 2 ints representing how much to scale an image by in the x and y direction
+    Returns:
+    new_command_list:
+        list of strings containing the key letter and command arguments scaled by the specified amount
+    """
     #scale all control points by the scalers
 
     xscale = scalers[0]

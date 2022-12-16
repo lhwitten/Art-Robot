@@ -1,12 +1,5 @@
 """
-printbed 5x5 inches
-
-
-bed_range_y = 5 #inches
-bed_range_x = 5 #inches
-drawing_scale = 100 #incriments per inch
-point_range_y = bed_range_y*drawing_scale
-point_range_x = bed_range_x*drawing_scale
+Code for reading and writing (unused) SVG files.
 """
 
 import csv
@@ -16,6 +9,9 @@ import csv
 
 def initialize_drawing(filename,bed_size,drawing_scale):
     """
+    Code for initializing an SVG Drawing (unused)
+
+    Args:
     filename:
         a string representing the name of the file to write to
     bed_size:
@@ -35,11 +31,19 @@ def initialize_drawing(filename,bed_size,drawing_scale):
         #open svg and set viewbox
         f.write(f"<svg viewBox=\"0 0 {point_range_x} {point_range_y}\">\n")
 def finish_drawing(filename):
-    "add the final line to an svg"
+    """
+    add the final line to an svg (unused)
+    
+    Args:
+    filename:
+        a string representing the name of a file
+    """
     with open(filename,"a") as f: f.write("</svg>")
 
 def polyline_svg(filename,pointlist):
     """
+    Write a polyline to an SVG file (unused)
+    Args:
     filename:
         a string representing the name of the file to write to
     pointlist:
@@ -58,7 +62,21 @@ def polyline_svg(filename,pointlist):
 #code for reading svgs. only works for path commands currently
 
 def parse_svg(filename):
+    """
+    Read all relevant commands and arguments from an SVG file
 
+    Args:
+    filename:
+        a string representing the name of a file
+    
+    Returns:
+    command_list:
+        a list of lists of strings and arguments containing the letter command to parse and that commands
+        float or integer arguments
+    viewBox:
+        a list of integers representing the bounding box for the image
+    
+    """
     #its a list of lists
     command_list =[]
     with open(filename,"r") as f:
@@ -141,6 +159,18 @@ def parse_svg(filename):
 
 
 def parse_pathline(line,command_list):
+    """
+    Iterates through the path string in an svg file and picks out individual commands
+    from it, adding them to a list of commands
+
+    Args:
+    line:
+        a string representing all information that occurs within a "path" line within an svg
+    command_list:
+        a list of lists of strings and arguments containing the letter command to parse and that commands
+        float or integer arguments
+
+    """
 
     #command_list is a list of lists
 
@@ -227,7 +257,23 @@ def parse_pathline(line,command_list):
     #return command_list
 
 def parse_single_command(list_of_lists,command,letter,letter_dict):
+    """
+    Parses a single string command into a list of SVG commands with easily readable
+    arguments. Also deals with the command chaining problem.
 
+    Args:
+    command:
+        a string representing all information that occurs within the scope of a letter in a path line
+    list_of_lists:
+        a list of lists of strings and arguments containing the letter command to parse and that commands
+        float or integer arguments
+    letter:
+        a string containing a single character with the command being parsed
+    letter_dict:
+        a dictionary with strings as keys and integers as values representing the
+        number of arguments per command.
+        
+    """
     #could have multiple individual curves in it
     num_arguments = letter_dict[letter]
 
@@ -281,8 +327,22 @@ def parse_single_command(list_of_lists,command,letter,letter_dict):
 def find_first_occurence_of_multiple(string,list_strings):
 
     """
-    returns the first index a string in the list of strings occurs as 
-    well as the relevant string
+    Searches a string for multiple possible strings and outputs the one that
+    occurrs first.
+
+    Args:
+    string:
+        the string being in
+    list_strings:
+        a list of strings representing the possible letter commands in the SVG path
+    
+    Returns:
+        a list containing best_index and best_letter
+    best_index:
+        the first index at which one of the searched strings occurs
+    best_letter
+        the first string of those searched that occurs
+
     """
 
     #print(string)
@@ -310,10 +370,26 @@ def find_first_occurence_of_multiple(string,list_strings):
 def find_scale(viewBox,bed_dimensions,max_scale=-1,stretch_scale =False):
 
     """
+    Find the maximum amount by which you can scale an SVG in x and y directions
+
+    Args:
     viewBox:
         a list with 2 integers: x and y image size maximum in terms of steps
     bed_dimensions:
         a list with 2 integers: x and y bed size maximum in terms of steps
+    max_scale:
+        an integer representing the maximum amount you can scale an image,
+        -1 if uncapped
+    stretch_scale:
+        a boolean representing whether x and y can be scaled independently
+
+    Returns:
+        a list containing xscale and yscale
+    xscale: 
+        an integer representing the amount by which to scale x
+    yscale: 
+        an integer representing the amount by which to scale y
+
     """
     #assume viewBox[0,1] are 0
     xscale = bed_dimensions[0]/viewBox[2]
