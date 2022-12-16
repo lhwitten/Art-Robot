@@ -91,6 +91,7 @@ def parse_svg(filename):
         file_commands = [command.replace("\n"," ") for command in file_commands]
         #delete commas, kittykat.svg has commas instead of spaces in some places
         file_commands = [command.replace(","," ") for command in file_commands]
+        file_commands = [command.replace("-"," -").replace('e -','e-') for command in file_commands]
 
 
         #clean up the created junk

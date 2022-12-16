@@ -39,10 +39,10 @@ def straight_line(filename,point1,point2,draw_height,linked=False):
     with open(filename,"a") as f:
         
         #round to two decimals
-        xstart = round(point1[0], 2)
-        ystart = round(point1[1], 2)
-        xend = round(point2[0], 2)
-        yend = round(point2[1], 2)
+        xstart = round(point1[0])
+        ystart = round(point1[1])
+        xend = round(point2[0])
+        yend = round(point2[1])
 
         if not linked:
             retraction_move(f,draw_height,[xstart,ystart])
