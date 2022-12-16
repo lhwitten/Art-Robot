@@ -104,8 +104,6 @@ float parseMessage(char code,float val) {
   // return: the value found.  If nothing found, val is returned.
 
   int idx = message.indexOf(code);
-  Serial.print(code);
-  Serial.println(idx);
   // Serial.println(code);
   if (idx != -1) {
     int space = message.indexOf(" ", idx);
@@ -114,15 +112,6 @@ float parseMessage(char code,float val) {
 
   return val;  // end reached, nothing found, return default val
 }
-
-void where() {
-  // print current position
-  Serial.print("X");
-  Serial.println(px);
-
-  Serial.print("Y");
-  Serial.println(py);
-} 
 
 void processCommand() {
   // Read the message and find any recognized commands
@@ -209,7 +198,6 @@ void loop() {
 
   // listen for commands
   if( Serial.available() > 0 ) { // if something is available
-    // Serial.println("message received!!");
     char c = Serial.read(); // read it
 
     // put the character in a string to store
