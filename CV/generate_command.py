@@ -21,6 +21,8 @@ def read_binary(file_path):
 
 
 
+
+
 def group_coord(coordinates, threshold=10):
     """find all the pixels where there is an edge from the binary image, and group them into lines.
 

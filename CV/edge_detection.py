@@ -26,6 +26,18 @@ def read_image(file_path, display=False):
 def save_image(img,target_path):
     cv.imwrite(target_path,img)
 
+def take_image():
+    cap = cv.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        cv.imshow("live view", frame)
+        k = cv.waitKey(1)
+        if k%256  == 32:
+            cv.imwrite('pic.png', frame)
+            cv.destroyAllWindows()
+            break;
+    cap.release()
+
 def increase_brightness(img, value=30):
     """increases the brightness in an given BGR image
 
@@ -78,8 +90,11 @@ def image_process(img, brightness_value=0,kernel_size=(5,5)):
     
 
 if __name__ == "__main__":
-    inFile = sys.argv[1] # prints the file path right after edge_detection.py
-    print(inFile)
+    if len(sys.argv) > 1:
+        inFile = sys.argv[1] # type the file path right after edge_detection.py
+    else:
+        take_image()
+        inFile = "pic.png"
     filepath = inFile
     savepath = '.'.join([''.join([filepath.split(".")[0],"_edge"]), filepath.split(".")[1]])
     print(savepath)
